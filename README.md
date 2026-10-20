@@ -1,80 +1,98 @@
 # DeepSearch
 
-多智能体深度研究与信息检索平台。
+输入一个问题，帮你查网页、找资料、查数据库，再把找到的信息整理成回答或报告。
 
-开发与维护：[IIndex404](https://github.com/IIndex404) · [MIT License](LICENSE)
+开发与维护：[IIndex404](https://github.com/IIndex404)。项目使用 [MIT 许可证](LICENSE) 开源。
 
-输入研究问题后，主智能体协调联网搜索、业务数据库和知识库助手获取信息，结合上传资料整理回答，也可以生成 Markdown 或 PDF 报告。前端实时展示任务、助手调用和工具执行状态。
+## 能做什么
 
-## 功能
+你可以让它围绕一个问题查资料，也可以上传自己的文件，让它结合文件内容回答。接上数据库后，可以用自然语言查询业务数据；接上知识库后，可以检索已经导入的文档。需要留存结果时，可以生成 Markdown 或 PDF 报告。
 
-- 联网搜索：通过 Tavily 查询公开网页信息。
-- 数据库检索：查看 MySQL 表、读取数据并执行 SQL 查询。
-- 知识库检索：通过 RAGFlow 查询聊天助手与知识库内容。
-- 文件处理：上传本次会话资料，读取文件并生成报告。
-- 实时进度：通过 WebSocket 展示任务执行情况。
-- 模型设置：在本地页面修改 DeepSeek 接口地址、模型名称和 API Key。
+页面会显示它正在查什么、调用了哪个助手，以及执行到了哪一步。
 
-后端使用 Python、FastAPI、DeepAgents 和 LangChain，前端使用 Vue 3、TypeScript 和 Vite。
-
-## Windows 本地运行
-
-需要 Python 3.12 或更高版本、uv、Node.js 22.12 或更高版本，以及你自己的 DeepSeek 和 Tavily API Key。PDF 转换使用 Windows Microsoft Word COM，需安装桌面版 Word。MySQL 和 RAGFlow 用于相应检索能力。
-
-```powershell
-git clone https://github.com/IIndex404/DeepSearch.git
-cd DeepSearch
-powershell -NoProfile -ExecutionPolicy Bypass -File .\Setup-DeepSearch.ps1
-```
-
-安装脚本会创建 `backend/.env`、安装锁定的 Python 与前端依赖并构建网页。打开 `backend/.env`，至少填写 `DEEPSEEK_API_KEY` 和 `TAVILY_API_KEY`；数据库与知识库配置见 [数据服务说明](docs/data-services.md)。模型名称可按账号支持情况修改，或启动后通过“模型设置”调整。
-
-然后双击 `Start-DeepSearch.cmd`，访问 [http://127.0.0.1:8000](http://127.0.0.1:8000)。
-
-| 入口 | 用途 |
+| 你想做的事 | 需要准备什么 |
 | --- | --- |
-| `Start-DeepSearch.cmd` | 后台启动主程序并打开页面 |
-| `Stop-DeepSearch.cmd` | 停止此部署记录的主程序 |
-| `Status-DeepSearch.cmd` | 检查主程序状态 |
-| `Start-DataServices.cmd` | 按配置启动可选的本地 RAGFlow 数据服务 |
-| `/health` | 主程序健康检查 |
-| `/docs` | FastAPI 接口文档 |
+| 查网页、整理回答 | DeepSeek 和 Tavily 的 API Key |
+| 结合上传文件回答 | 在页面中上传文件 |
+| 查询自己的数据库 | 填写 MySQL 连接信息 |
+| 查询长期保存的资料 | 连接 RAGFlow，并导入自己的文档 |
+| 导出 PDF | 电脑上安装 Microsoft Word 桌面版 |
 
-默认启动脚本仅监听本机 `127.0.0.1`。Tavily 客户端在启动时初始化，因此启动前必须填写自己的 Tavily Key。
+## 第一次怎么装
 
-## 目录
+下面按 Windows 电脑来写。
 
-```text
-backend/
-  agent/          主智能体和三个检索助手
-  api/            任务、上传、下载、模型设置与 WebSocket
-  tools/          搜索、SQL、知识库、文件与报告工具
-  prompt/         智能体提示词
-  utils/          日志、路径与转换工具
-  .env.example    配置模板
-  uv.lock         Python 依赖锁
-frontend/         Vue 3 页面与前端依赖锁
-services/ragflow/ 可选本地数据服务部署配置
-docs/             数据服务说明
+### 1. 下载项目，准备两个工具
+
+在仓库页面点击 **Code → Download ZIP**，下载后解压。也可以用 Git：
+
+```bash
+git clone https://github.com/IIndex404/DeepSearch.git
 ```
 
-## 开发与 Git
+电脑上需要安装：
 
-修改前端后，在 `frontend` 中运行 `npm run build` 并刷新页面；修改后端后重启主程序。
+- [Node.js](https://nodejs.org/en/download)：使用 22.12 或更高版本。
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)：用来安装 Python 和项目所需的库。Windows 可以在终端里运行 `winget install --id=astral-sh.uv -e`。
 
-```powershell
-git status
-git diff
-git add <需要提交的文件>
-git diff --cached
-git commit -m "describe your change"
-git push
+装好后重新打开终端。项目安装脚本会使用 Python 3.12；电脑上没有这个版本时，uv 会自动下载。已有这两个工具可以直接继续。
+
+### 2. 双击「安装.cmd」
+
+等窗口出现“安装完成”。这一步会安装运行所需的库、生成网页，并创建配置文件。第一次要下载文件，可能需要等一会儿。
+
+这里只需要安装一次。以后打开项目，直接双击“启动.cmd”。
+
+### 3. 双击「配置.cmd」，填两项
+
+它会用记事本打开 `backend/.env`。先找到下面两行，在等号后面填你自己的 API Key，保存文件：
+
+```dotenv
+DEEPSEEK_API_KEY=这里填你的DeepSeek密钥
+TAVILY_API_KEY=这里填你的Tavily密钥
 ```
 
-`.gitignore` 排除真实 `.env`、上传文件、生成报告、服务数据、模型缓存、依赖目录和运行日志。仓库只提供空密钥配置模板。
+DeepSeek 负责理解问题和整理回答，Tavily 负责搜索网页。这两个密钥分别由对应平台提供，GitHub 仓库里没有预置密钥。
 
-## 使用边界
+模型名称在 `DEEPSEEK_MODEL` 这一行修改，填你账号支持的模型。启动后，也可以在网页右上角“模型设置”中调整 DeepSeek 配置。
 
-当前以 Windows 本机使用为主，尚未提供完整的多人账号与权限体系。SQL 工具会执行模型生成的查询，应连接只读账号。生成内容取决于模型与检索结果，需要自行核对。PDF 转换还依赖本机 Word 环境。
+如果要查数据库或知识库，再按[连接数据库和知识库](docs/data-services.md)填写相应配置。
 
-仓库不包含个人登录信息、真实业务数据、已导入的知识库和历史报告。RAGFlow 是独立第三方知识库服务，相关部署文件的许可见 [第三方依赖说明](THIRD_PARTY_NOTICES.md)。
+### 4. 双击「启动.cmd」
+
+启动成功后会自动打开浏览器，地址是：
+
+**[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+
+在页面里输入问题即可。先试一个简单的问题，例如“查找某个行业近期的公开信息，列出主要来源”。
+
+## 以后怎么用
+
+| 文件 | 什么时候点 |
+| --- | --- |
+| `启动.cmd` | 打开项目 |
+| `停止.cmd` | 用完后关闭后台程序 |
+| `检查状态.cmd` | 不确定程序有没有启动时 |
+| `配置.cmd` | 修改密钥、模型或连接信息 |
+| `安装.cmd` | 第一次安装，或更新代码后重新准备环境 |
+
+关掉浏览器后，后台程序还在运行。需要完全关闭时，点“停止.cmd”。修改 Tavily、数据库或知识库配置后，需要停止再启动。
+
+## 打不开时先看这里
+
+- **提示找不到 uv 或 Node.js**：先安装上面两个工具，装好后重新打开窗口。
+- **提示没有填写 Tavily 密钥**：点“配置.cmd”，检查 `TAVILY_API_KEY`，保存后重新启动。
+- **提示 8000 端口被占用**：电脑上有别的程序在使用这个地址，先关闭占用它的程序。
+- **提示启动失败**：打开 `logs/server.err.log` 查看具体报错。
+- **网页能打开，但回答失败**：检查模型名称、密钥和账号额度；使用数据库或知识库功能时，还要检查对应服务是否已经启动。
+- **PDF 导出失败**：确认安装的是 Microsoft Word 桌面版，且 Word 能正常打开。
+
+## 给改代码的人
+
+后端在 `backend`，使用 Python、FastAPI、DeepAgents 和 LangChain；前端在 `frontend`，使用 Vue 3、TypeScript 和 Vite。联网搜索、数据库查询和知识库查询分别交给三个助手处理。
+
+修改前端后，在 `frontend` 目录运行 `npm run build`，然后刷新网页；修改后端后，停止再启动项目。数据库和知识库的本地部署配置在 `services/ragflow`。
+
+当前主要供 Windows 本机使用，还没有完整的多人登录和权限管理。数据库建议使用只读账号。报告中的事实和引用需要自行核对。
+
+自己的密钥、上传文件、生成报告、数据库和知识库内容都留在本地，不提交到 Git。第三方库与 RAGFlow 部署文件的许可见[依赖说明](THIRD_PARTY_NOTICES.md)。

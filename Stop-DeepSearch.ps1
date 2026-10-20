@@ -1,7 +1,7 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $pidFile = Join-Path $PSScriptRoot 'logs\service.json'
 if (-not (Test-Path -LiteralPath $pidFile)) {
-    Write-Host 'No managed DeepSearch service is recorded.'
+    Write-Host '没有找到由此目录启动的程序，无需停止。'
     exit 0
 }
 $state = Get-Content -LiteralPath $pidFile -Raw | ConvertFrom-Json
@@ -15,10 +15,10 @@ foreach ($serviceId in @($state.processId, $state.launcherId) | Select-Object -U
         $usesEnvironment = $process.CommandLine -match [regex]::Escape($state.pythonPath)
         if ($process.CommandLine -notmatch 'uvicorn\s+deploy_server:app' -or
             (-not $usesEnvironment -and -not $belongsToLauncher)) {
-            throw "Process $serviceId does not match this deployment; it was left running."
+            throw "进程 $serviceId 不属于这个目录启动的 DeepSearch，已保留它，请确认是不是打开了另一份项目。"
         }
         Stop-Process -Id $serviceId -Force
     }
 }
 Remove-Item -LiteralPath $pidFile
-Write-Host 'DeepSearch stopped.'
+Write-Host 'DeepSearch 已停止，可以关闭这个窗口。'
